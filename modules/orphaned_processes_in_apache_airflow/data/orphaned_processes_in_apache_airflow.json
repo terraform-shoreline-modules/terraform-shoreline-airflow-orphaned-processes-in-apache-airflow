@@ -1,0 +1,94 @@
+{
+  "name": "orphaned_processes_in_apache_airflow",
+  "description": "This incident type refers to the presence of orphaned processes in Apache Airflow. Orphaned processes are those that have been started by a parent process but are not properly terminated when they are no longer needed. These processes can consume system resources and cause performance issues. In the context of Apache Airflow, orphaned processes can affect the scheduling and execution of tasks, leading to failures or delays in completing workflows. The incident requires identifying and removing these orphaned processes to restore normal system operations.",
+  "params": [
+    {
+      "name": "CONTAINER_NAME",
+      "value": ""
+    },
+    {
+      "name": "POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "PROCESS_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Orphaned Processes in Apache Airflow\nThis incident type refers to the presence of orphaned processes in Apache Airflow. Orphaned processes are those that have been started by a parent process but are not properly terminated when they are no longer needed. These processes can consume system resources and cause performance issues. In the context of Apache Airflow, orphaned processes can affect the scheduling and execution of tasks, leading to failures or delays in completing workflows. The incident requires identifying and removing these orphaned processes to restore normal system operations."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Get the list of processes running in a specific container"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "container | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | name=$$CONTAINER_NAME | `ps -ef`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the CPU and memory usage of a specific pod"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top pod ${POD_NAME}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the CPU and memory usage of all pods in the default namespace"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top pod --all-namespaces`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Identify the orphaned processes in Apache Airflow using relevant tools and commands."
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_orphaned_process_script($POD_NAME, $NAMESPACE)"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Kill the identified orphaned processes to prevent resource hogging and potential system crashes."
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_kill_orphaned_processes($POD_NAME, $NAMESPACE, $PROCESS_NAME)"
+    }
+  ]
+}
